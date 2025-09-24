@@ -11,8 +11,6 @@ import pandas as pd
 import os
 # ユーザーごとの会話履歴を保存
 from collections import defaultdict
-from linebot.exceptions import InvalidSignatureError
-
 
 session_history = defaultdict(list)
 
@@ -36,8 +34,8 @@ def callback():
 
     try:
         handler.handle(body, signature)
-    except InvalidSignatureError:
-        print("Invalid signature. Check your channel secret.")
+    except Exception as e:
+        print(f"[署名検証エラー] {e}")  # エラーの中身が見える
         abort(400)
 
     return 'OK'
@@ -50,22 +48,6 @@ client = OpenAI(
     base_url="https://api.openai.iniad.org/api/v1",
 )
 
-def analyze_emotion(message):
-    # 感情スコアの簡易ロジック
-    positive_keywords = ["うれしい", "楽しい", "ありがとう", "助かった", "最高"]
-    negative_keywords = ["つらい", "しんどい", "むかつく", "死にたい", "OD", "病み"]
-
-    score = 50
-    for word in positive_keywords:
-        if word in message:
-            score += 10
-    for word in negative_keywords:
-        if word in message:
-            score -= 10
-
-    return max(0, min(score, 100))
-
-
 #スコアの保存
 import csv
 from datetime import datetime
@@ -76,18 +58,10 @@ def save_score(user_id, score):
         writer.writerow([datetime.now().isoformat(), user_id, score])
 
 
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
     user_message = event.message.text
-    
-    # ここで感情スコアを計算（例：score = analyze_emotion(user_message)）
-    score = analyze_emotion(user_message)  # 自分で定義した感情分析関数
-
-    # スプレッドシートに保存
-    save_to_sheet(user_id, score, user_message)
-
 
     # まずはグラフ要求かチェック
     if any(keyword in user_message.lower() for keyword in ["グラフ", "グラフくれ", "グラフみたい", "気分の推移", "推移"]):
@@ -167,12 +141,9 @@ def generate_graph(user_id):
     plt.close()
     return os.path.basename(file_path)
 
-import os
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # ← Render用にPORT変数を使う
-    app.run(host='0.0.0.0', port=port)
-
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
 
 
 
