@@ -11,6 +11,8 @@ import pandas as pd
 import os
 # ユーザーごとの会話履歴を保存
 from collections import defaultdict
+from linebot.exceptions import InvalidSignatureError
+
 
 session_history = defaultdict(list)
 
@@ -47,6 +49,22 @@ client = OpenAI(
 
     base_url="https://api.openai.iniad.org/api/v1",
 )
+
+def analyze_emotion(message):
+    # 感情スコアの簡易ロジック
+    positive_keywords = ["うれしい", "楽しい", "ありがとう", "助かった", "最高"]
+    negative_keywords = ["つらい", "しんどい", "むかつく", "死にたい", "OD", "病み"]
+
+    score = 50
+    for word in positive_keywords:
+        if word in message:
+            score += 10
+    for word in negative_keywords:
+        if word in message:
+            score -= 10
+
+    return max(0, min(score, 100))
+
 
 #スコアの保存
 import csv
