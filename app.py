@@ -39,10 +39,25 @@ client = OpenAI(
 BASE_URL = os.getenv("BASE_URL", "https://your-render-app.onrender.com")
 
 # Google Sheets保存
+import tempfile
+import json
+
 def save_to_sheet(user_id, score, message):
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        os.getenv('GOOGLE_CREDENTIALS_JSON', 'your-credentials.json'), scope)
+    scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
+
+    # Render の環境変数には JSON 全文を保存している前提
+    json_str = os.getenv('GOOGLE_CREDENTIALS_JSON')
+
+    if not json_str:
+        raise ValueError("GOOGLE_CREDENTIALS_JSON 環境変数が設定されていません")
+
+    # 一時ファイルとして保存
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json') as temp_file:
+        temp_file.write(json_str)
+        temp_file_path = temp_file.name
+
+    creds = ServiceAccountCredentials.from_json_keyfile_name(temp_file_path, scope)
     client = gspread.authorize(creds)
     sheet = client.open("CounselingLog").sheet1
     sheet.append_row([user_id, score, message])
