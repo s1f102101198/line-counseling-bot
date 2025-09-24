@@ -27,6 +27,21 @@ app = Flask(__name__, static_url_path='/static')
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+def save_to_sheet(user_id, score, message):
+    scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
+    credentials_path = '/etc/secrets/GOOGLE_CREDENTIALS_JSON'
+    
+    creds = ServiceAccountCredentials.from_json_keyfile_name(
+        'your-credentials.json', scope)
+    client = gspread.authorize(creds)
+    sheet = client.open("CounselingLog").sheet1
+    sheet.append_row([user_id, score, message])
+
+
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -62,6 +77,19 @@ def save_score(user_id, score):
 def handle_message(event):
     user_id = event.source.user_id
     user_message = event.message.text
+    
+    # ここで感情スコアを計算（例：score = analyze_emotion(user_message)）
+    score = analyze_emotion(user_message)  # 自分で定義した感情分析関数
+
+    # スプレッドシートに保存
+    save_to_sheet(user_id, score, user_message)
+
+    # 応答
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text="メッセージを受け取りました。ありがとう！")
+    )
+
 
     # まずはグラフ要求かチェック
     if any(keyword in user_message.lower() for keyword in ["グラフ", "グラフくれ", "グラフみたい", "気分の推移", "推移"]):
