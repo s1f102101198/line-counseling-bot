@@ -32,13 +32,17 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+import json
+from oauth2client.service_account import ServiceAccountCredentials
+
 def save_to_sheet(user_id, score, message):
     scope = ['https://spreadsheets.google.com/feeds',
              'https://www.googleapis.com/auth/drive']
-    credentials_path = '/etc/secrets/GOOGLE_CREDENTIALS_JSON'
 
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        'your-credentials.json', scope)
+    # Render上では環境変数から読み込む
+    creds_dict = json.loads(os.environ.get("GOOGLE_CREDENTIALS_JSON"))
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
     client = gspread.authorize(creds)
     sheet = client.open("CounselingLog").sheet1
     sheet.append_row([user_id, score, message])
