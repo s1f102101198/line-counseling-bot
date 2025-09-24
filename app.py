@@ -34,8 +34,8 @@ def callback():
 
     try:
         handler.handle(body, signature)
-    except Exception as e:
-        print(f"[署名検証エラー] {e}")  # エラーの中身が見える
+    except InvalidSignatureError:
+        print("Invalid signature. Check your channel secret.")
         abort(400)
 
     return 'OK'
@@ -141,10 +141,12 @@ def generate_graph(user_id):
     plt.close()
     return os.path.basename(file_path)
 
+import os
+
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))  # ← Render用にPORT変数を使う
+    app.run(host='0.0.0.0', port=port)
+
 
 
 
