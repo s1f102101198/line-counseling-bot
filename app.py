@@ -49,8 +49,8 @@ def callback():
 
     try:
         handler.handle(body, signature)
-    except Exception as e:
-        print(f"[署名検証エラー] {e}")  # エラーの中身が見える
+    except InvalidSignatureError:
+        print("Invalid signature. Check your channel secret.")
         abort(400)
 
     return 'OK'
