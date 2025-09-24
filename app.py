@@ -11,6 +11,8 @@ import pandas as pd
 import os
 # ユーザーごとの会話履歴を保存
 from collections import defaultdict
+from linebot.exceptions import InvalidSignatureError
+
 
 session_history = defaultdict(list)
 
@@ -71,6 +73,14 @@ def save_score(user_id, score):
     with open("scores.csv", "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow([datetime.now().isoformat(), user_id, score])
+
+def analyze_emotion(message):
+    if "つらい" in message:
+        return 20
+    elif "うれしい" in message:
+        return 80
+    else:
+        return 50
 
 
 @handler.add(MessageEvent, message=TextMessage)
