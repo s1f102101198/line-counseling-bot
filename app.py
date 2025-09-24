@@ -27,21 +27,6 @@ app = Flask(__name__, static_url_path='/static')
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-
-def save_to_sheet(user_id, score, message):
-    scope = ['https://spreadsheets.google.com/feeds',
-             'https://www.googleapis.com/auth/drive']
-    credentials_path = '/etc/secrets/GOOGLE_CREDENTIALS_JSON'
-
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        'your-credentials.json', scope)
-    client = gspread.authorize(creds)
-    sheet = client.open("CounselingLog").sheet1
-    sheet.append_row([user_id, score, message])
-
-
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
