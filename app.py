@@ -14,8 +14,7 @@ from collections import defaultdict
 
 session_history = defaultdict(list)
 
-
-ngrok_url = " https://2ec1d662bd50.ngrok-free.app"
+ngrok_url = "https://2ec1d662bd50.ngrok-free.app"
 
 
 # アクセストークンとシークレット
@@ -140,9 +139,6 @@ def generate_graph(user_id):
     plt.savefig(file_path)
     plt.close()
     return os.path.basename(file_path)
-
-if __name__ == "__main__":
-    app.run(port=5000)
 
 
 if __name__ == "__main__":
