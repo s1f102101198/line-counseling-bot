@@ -85,7 +85,7 @@ def handle_message(event):
 
     # 会話履歴をAPIに送信
     try:
-        messages = [{"role": "system", "content": "あなたは「心の整理を手伝う対話アシスタント」です。利用者の話の中から、感情・価値観・行動などのキーワードをみつけ、「つまり〇〇ちう気持ちが強かったのですね」などの形で言い換えながら返答してください。アドバイスよりも、相手が自分で気づけるように質問を交えて進めてください。"}] + session_history[user_id]
+        messages = [{"role": "system", "content": "あなたは「こころのセルフケアを支援するＡＩパートナー」です。利用者の感情に寄り添いながら、必要に応じて深呼吸・日記・睡眠などの簡単なセルフケア行動を提案してください。ただし、強制せず優しい表現を使ってください。"}] + session_history[user_id]
 
         response = client.chat.completions.create(
             model="gpt-4o",
