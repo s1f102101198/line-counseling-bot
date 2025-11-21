@@ -85,10 +85,10 @@ def handle_message(event):
 
     # 会話履歴をAPIに送信
     try:
-        messages = [{"role": "system", "content": "あなたは「こころのセルフケアを支援するＡＩパートナー」です。利用者の感情に寄り添いながら、必要に応じて深呼吸・日記・睡眠などの簡単なセルフケア行動を提案してください。ただし、強制せず優しい表現を使ってください。"}] + session_history[user_id]
+        messages = [{"role": "system", "content": "あなたは「心の相談に寄り添うカウンセラー」です。利用者の話を最後まで否定せずに聞き、共感を言葉で伝えてください。励ましよりも「理解する姿勢」を優先します。口調は優しくお願いします。"}] + session_history[user_id]
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-o4mini",
             messages=messages,
             temperature=0.7,
         )
